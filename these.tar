@@ -1,0 +1,85 @@
+nginx-multi-label.yml0000664000175000017500000000046413042210247015020 0ustar  vagrantvagrantapiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx-www
+spec:
+  replicas: 3
+  selector:
+    app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports: 
+        - containerPort: 80
+nginx-pod-label-dev.yml0000664000175000017500000000046113042206362015224 0ustar  vagrantvagrantapiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-dev
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment-dev
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.8
+          ports:
+          - containerPort: 80
+nginx-pod-label-prod.yml0000664000175000017500000000046513042205543015416 0ustar  vagrantvagrantapiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-prod
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment-prod
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.7.9
+          ports:
+          - containerPort: 80
+nginx-pod-label.yml0000664000175000017500000000025013042010775014445 0ustar  vagrantvagrantapiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.7.9
+    ports:
+    - containerPort: 80
+nginx-service.yaml0000664000175000017500000000023313042211271014402 0ustar  vagrantvagrantapiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  ports:
+  - port: 8000
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: nginx
+nginx.yml0000664000175000017500000000021713042007214012605 0ustar  vagrantvagrantapiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.7.9
+    ports:
+    - containerPort: 80
+
