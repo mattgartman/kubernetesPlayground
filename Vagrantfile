@@ -83,6 +83,25 @@ Vagrant.configure("2") do |config|
       ifup eth1
       yum update
       yum install -y ntp
+      systemctl enable ntdp && sudo systemctl start ntpd
+      echo -e "192.168.56.10 kube-master\n192.168.56.11 kube-minion1\n192.168.56.12 kube-minion2\n192.168.56.13 kube-minion3"  >>  /etc/hosts
+      echo -e "[virt7-docker-common-release]\nname=virt7-docker-common-release\nbaseurl=http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/\ngpgcheck=0" > /etc/yum.repos.d/virt7-docker-common-release.repo
+      yum update -y
+      yum install -y --enablerepo=virt7-docker-common-release kubernetes docker 
+      cat /etc/kubernetes/config | sed 's/127.0.0.1/kube-master/g' >> /etc/kubernetes/config
+      echo 'KUBE_ETCD_SERVERS="--etcd-servers=http://kube-master:2379"' >> /etc/kubernetes/config
+
+      #minion only
+      sed -i 's/127.0.0.1/kube-master/g' /etc/kubernetes/config
+      echo 'KUBE_ETCD_SERVERS="--etcd-servers=http://centos-master:2379"' >> /etc/kubernetes/config
+      sed -i 's/127.0.0.1/0.0.0.0/g' /etc/kubernetes/kubelet 
+      sed -i 's/# KUBELET_PORT/KUBELET_PORT/g' /etc/kubernetes/kubelet 
+      sed -i 's/hostname-override=0.0.0.0/hostname-override=kube-minion2/g' /etc/kubernetes/kubelet 
+      sed -i 's/0.0.0.0:8080/kube-master:8080/g' /etc/kubernetes/kubelet
+      sed -i 's/KUBELET_POD_INFRA/# KUBELET_POD_INFRA/g' /etc/kubernetes/kubelet
+      systemctl enable kube-proxy kubelet docker
+      systemctl start kube-proxy kubelet docker
+
     SHELL
   end
 
@@ -97,6 +116,24 @@ Vagrant.configure("2") do |config|
       ifup eth1
       yum update
       yum install -y ntp
+      systemctl enable ntdp && sudo systemctl start ntpd
+      echo -e "192.168.56.10 kube-master\n192.168.56.11 kube-minion1\n192.168.56.12 kube-minion2\n192.168.56.13 kube-minion3"  >>  /etc/hosts
+      echo -e "[virt7-docker-common-release]\nname=virt7-docker-common-release\nbaseurl=http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/\ngpgcheck=0" > /etc/yum.repos.d/virt7-docker-common-release.repo
+      yum update -y
+      yum install -y --enablerepo=virt7-docker-common-release kubernetes docker 
+      cat /etc/kubernetes/config | sed 's/127.0.0.1/kube-master/g' >> /etc/kubernetes/config
+      echo 'KUBE_ETCD_SERVERS="--etcd-servers=http://kube-master:2379"' >> /etc/kubernetes/config
+
+      #minion only
+      sed -i 's/127.0.0.1/kube-master/g' /etc/kubernetes/config
+      echo 'KUBE_ETCD_SERVERS="--etcd-servers=http://centos-master:2379"' >> /etc/kubernetes/config
+      sed -i 's/127.0.0.1/0.0.0.0/g' /etc/kubernetes/kubelet 
+      sed -i 's/# KUBELET_PORT/KUBELET_PORT/g' /etc/kubernetes/kubelet 
+      sed -i 's/hostname-override=0.0.0.0/hostname-override=kube-minion3/g' /etc/kubernetes/kubelet 
+      sed -i 's/0.0.0.0:8080/kube-master:8080/g' /etc/kubernetes/kubelet
+      sed -i 's/KUBELET_POD_INFRA/# KUBELET_POD_INFRA/g' /etc/kubernetes/kubelet
+      systemctl enable kube-proxy kubelet docker
+      systemctl start kube-proxy kubelet docker
     SHELL
   end
 
